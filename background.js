@@ -9,7 +9,10 @@ let workspaceState = {
 }
 
 let currentAISession = null
-const chrome = window.chrome // Declare the chrome variable
+// chrome API is globally available in extensions
+
+// Declare chrome variable
+const chrome = window.chrome
 
 // Initialize extension
 console.log("[TabMind] Service worker starting...")

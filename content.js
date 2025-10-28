@@ -2,9 +2,6 @@
 // Extracts page metadata and content for AI analysis
 
 ;(() => {
-  // Declare chrome variable
-  const chrome = window.chrome
-
   // Extract page metadata
   function extractMetadata() {
     const metadata = {
@@ -46,7 +43,7 @@
   }
 
   // Send metadata to background script
-  chrome.runtime
+  window.chrome.runtime
     .sendMessage({
       type: "PAGE_METADATA",
       data: extractMetadata(),
