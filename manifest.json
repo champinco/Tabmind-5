@@ -3,11 +3,10 @@
   "name": "TabMind - Intelligent Workspace",
   "version": "1.0.0",
   "description": "AI-powered tab management that transforms chaos into clarity. Automatically clusters tabs, extracts insights, and amplifies your productivity.",
-  "permissions": ["tabs", "storage", "sidePanel", "tabGroups"],
+  "permissions": ["tabs", "storage", "sidePanel", "tabGroups", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
   "side_panel": {
     "default_path": "sidepanel.html"

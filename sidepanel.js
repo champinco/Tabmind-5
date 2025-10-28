@@ -2,7 +2,7 @@
 // Handles user interface and interactions
 
 let currentWorkspace = null
-let chrome // Declare the chrome variable
+
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
@@ -13,6 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === "WORKSPACE_UPDATED") {
       currentWorkspace = message.data
+      // Ensure tabData is a Map for UI rendering, as it might be an array of arrays from storage
+      if (currentWorkspace.tabData && Array.isArray(currentWorkspace.tabData)) {
+        currentWorkspace.tabData = new Map(currentWorkspace.tabData)
+      }
       renderWorkspace()
     }
   })
@@ -22,6 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function setupEventListeners() {
   document.getElementById("refreshBtn").addEventListener("click", refreshAnalysis)
   document.getElementById("applyGroupsBtn").addEventListener("click", applyTabGroups)
+  document.getElementById("revertBtn").addEventListener("click", revertTabs)
+  document.getElementById("showAllBtn").addEventListener("click", () => renderClusters(null))
 }
 
 // Load workspace from background
@@ -31,6 +37,10 @@ async function loadWorkspace() {
 
     const response = await chrome.runtime.sendMessage({ type: "GET_WORKSPACE" })
     currentWorkspace = response
+    // Ensure tabData is a Map for UI rendering, as it might be an array of arrays from storage
+    if (currentWorkspace.tabData && Array.isArray(currentWorkspace.tabData)) {
+      currentWorkspace.tabData = new Map(currentWorkspace.tabData)
+    }
 
     renderWorkspace()
     showAIStatus(false)
@@ -54,6 +64,42 @@ async function refreshAnalysis() {
   } catch (error) {
     console.error("[TabMind] Error refreshing:", error)
     showAIStatus(false)
+  }
+}
+
+// Revert tabs
+async function revertTabs() {
+  try {
+    const btn = document.getElementById("revertBtn")
+    btn.disabled = true
+    btn.textContent = "Reverting..."
+
+    await chrome.runtime.sendMessage({ type: "REVERT_TABS" })
+
+    btn.textContent = "Reverted!"
+    setTimeout(() => {
+      btn.disabled = false
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Revert Tabs
+      `
+      loadWorkspace() // Reload workspace after revert
+    }, 2000)
+  } catch (error) {
+    console.error("[TabMind] Error reverting tabs:", error)
+    const btn = document.getElementById("revertBtn")
+    btn.disabled = false
+    btn.textContent = "Error - Try Again"
+    setTimeout(() => {
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Revert Tabs
+      `
+    }, 2000)
   }
 }
 
@@ -118,7 +164,7 @@ function renderWorkspace() {
   if (!currentWorkspace) return
 
   // Update stats
-  const totalTabs = currentWorkspace.tabData ? currentWorkspace.tabData.size : 0
+  const totalTabs = (currentWorkspace.tabData && currentWorkspace.tabData instanceof Map) ? currentWorkspace.tabData.size : 0
   const totalClusters = currentWorkspace.clusters ? currentWorkspace.clusters.length : 0
   const lastAnalyzed = currentWorkspace.lastAnalysis ? formatTimeAgo(currentWorkspace.lastAnalysis) : "Never"
 
@@ -144,23 +190,34 @@ function renderWorkspace() {
 }
 
 // Render clusters
-function renderClusters() {
+function renderClusters(filterCluster = null) {
   const container = document.getElementById("clustersContainer")
   container.innerHTML = ""
 
-  currentWorkspace.clusters.forEach((cluster, index) => {
-    const clusterEl = createClusterElement(cluster, index)
+  const clustersToRender = filterCluster ? [filterCluster] : currentWorkspace.clusters
+
+  clustersToRender.forEach((cluster, index) => {
+    const clusterEl = createClusterElement(cluster, index, filterCluster !== null)
     container.appendChild(clusterEl)
   })
+
+  // Update visibility of the "Show All" button
+  const showAllBtn = document.getElementById("showAllBtn")
+  if (filterCluster) {
+    showAllBtn.classList.remove("hidden")
+  } else {
+    showAllBtn.classList.add("hidden")
+  }
 }
 
 // Create cluster element
-function createClusterElement(cluster, index) {
+function createClusterElement(cluster, index, isFiltered = false) {
   const div = document.createElement("div")
   div.className = "cluster"
   div.dataset.index = index
 
-  const tabs = cluster.tabIds.map((id) => currentWorkspace.tabData.get(id)).filter(Boolean)
+  const tabDataMap = (currentWorkspace.tabData instanceof Map) ? currentWorkspace.tabData : new Map();
+  const tabs = cluster.tabIds.map((id) => tabDataMap.get(id)).filter(Boolean)
 
   div.innerHTML = `
     <div class="cluster-header">
@@ -170,6 +227,7 @@ function createClusterElement(cluster, index) {
           <span class="cluster-badge">${tabs.length}</span>
         </div>
         <div class="cluster-description">${escapeHtml(cluster.description)}</div>
+        ${cluster.summary ? `<p class="cluster-summary">${escapeHtml(cluster.summary)}</p>` : ''}
       </div>
       <div class="cluster-toggle">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -185,7 +243,22 @@ function createClusterElement(cluster, index) {
   // Add click handler for header
   const header = div.querySelector(".cluster-header")
   header.addEventListener("click", () => {
-    div.classList.toggle("expanded")
+    if (isFiltered) {
+      // If filtered, clicking the header should revert to showing all clusters
+      renderClusters(null)
+    } else {
+      // Otherwise, toggle expansion
+      div.classList.toggle("expanded")
+    }
+  })
+
+  // Add click handler for the cluster name/info to filter
+  const clusterInfo = div.querySelector(".cluster-info")
+  clusterInfo.addEventListener("click", (e) => {
+    e.stopPropagation()
+    if (!isFiltered) {
+      renderClusters(cluster)
+    }
   })
 
   // Add click handlers for tabs

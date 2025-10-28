@@ -1,41 +1,23 @@
-# TabMind - Intelligent Workspace for Chrome
+# TabMind - Intelligent Workspace Manager
 
-![TabMind Logo](icons/icon128.jpg)
+Transform tab chaos into organized clarity with AI-powered workspace management.
 
-**Transform tab chaos into clarity with AI-powered workspace intelligence.**
+## 🎯 Overview
 
-TabMind is a Chrome extension that uses Google Chrome's built-in AI (Gemini Nano) to automatically analyze, cluster, and organize your browser tabs into meaningful workspaces. Say goodbye to tab overload and hello to intelligent productivity.
+TabMind is a Chrome extension that uses Chrome's built-in AI (Gemini Nano) to automatically analyze and organize your browser tabs into intelligent workspaces. Say goodbye to tab overload and hello to productivity.
 
-## 🚀 Features
+## ✨ Features
 
-### 🧠 AI-Powered Tab Clustering
-- Automatically groups related tabs using Chrome's Prompt API
-- Understands context from page titles, URLs, and content
-- Creates meaningful workspace categories in real-time
+- **AI-Powered Clustering**: Automatically groups related tabs using Chrome's Prompt API
+- **Smart Summaries**: Generates concise summaries using the Summarizer API
+- **One-Click Organization**: Apply AI-generated clusters as Chrome tab groups
+- **Real-Time Analysis**: Monitors tab changes and updates clusters automatically
+- **Privacy-First**: All processing happens locally on your device
+- **Zero Configuration**: Works immediately after installation
 
-### 📊 Visual Workspace Dashboard
-- Clean, modern side panel interface
-- See all your tab clusters at a glance
-- Real-time statistics and insights
+## 🚀 Installation
 
-### 🎯 Smart Tab Groups
-- One-click application of AI-generated clusters as Chrome tab groups
-- Color-coded organization for easy navigation
-- Maintains your workflow without disruption
-
-### ⚡ Privacy-First Design
-- All AI processing happens locally in your browser
-- No data sent to external servers
-- Uses Chrome's built-in Gemini Nano model
-
-### 🔄 Continuous Analysis
-- Monitors tab changes in real-time
-- Automatically updates clusters as you browse
-- Learns from your browsing patterns
-
-## 📦 Installation
-
-### From Source (Development)
+### From Source
 
 1. Clone this repository:
    \`\`\`bash
@@ -45,64 +27,64 @@ TabMind is a Chrome extension that uses Google Chrome's built-in AI (Gemini Nano
 
 2. Open Chrome and navigate to `chrome://extensions/`
 
-3. Enable "Developer mode" (toggle in top right)
+3. Enable "Developer mode" in the top right
 
 4. Click "Load unpacked" and select the extension directory
 
 5. The TabMind icon should appear in your extensions toolbar
 
-### Prerequisites
+### Requirements
 
-TabMind requires Chrome 138+ with built-in AI capabilities:
-- Windows 10/11, macOS 13+, Linux, or ChromeOS
-- At least 22 GB of free storage
-- More than 4 GB of GPU VRAM
-- Unmetered network connection (for initial AI model download)
+- Chrome 138+ (for stable Summarizer API)
+- Windows 10/11, macOS 13+, or Linux
+- At least 22 GB free storage
+- GPU with >4GB VRAM or 16GB+ RAM with 4+ CPU cores
+- Unmetered network connection (for initial model download)
 
-## 🎯 Usage
+## 📖 Usage
 
-1. **Open TabMind**: Click the TabMind icon in your Chrome toolbar to open the side panel
+1. **Open the Side Panel**: Click the TabMind icon in your toolbar
 
-2. **Browse Normally**: Open tabs as you usually would - research, shopping, work, etc.
+2. **Let AI Analyze**: TabMind automatically analyzes your open tabs
 
-3. **Let AI Analyze**: TabMind automatically analyzes your tabs and creates intelligent clusters
+3. **Review Clusters**: See intelligent groupings in the side panel
 
-4. **View Workspaces**: See your tabs organized into meaningful categories in the side panel
+4. **Apply Groups**: Click "Apply Tab Groups" to organize your tabs
 
-5. **Apply Groups**: Click "Apply Tab Groups" to organize your actual Chrome tabs into groups
+5. **Revert Anytime**: Use "Revert Tabs" to undo grouping
 
-6. **Navigate Easily**: Click any tab in the side panel to switch to it instantly
+## 🤖 Chrome Built-in AI APIs Used
+
+### Prompt API
+- Analyzes tab relationships and generates intelligent clusters
+- Creates semantic groupings based on content, not just domains
+
+### Summarizer API
+- Generates concise summaries of page content
+- Enhances clustering accuracy with content understanding
+
+### Fallback Strategy
+- Domain-based clustering when AI is unavailable
+- Ensures functionality across all devices
 
 ## 🏗️ Architecture
 
-### Components
-
-- **Background Service Worker** (`background.js`): Monitors tabs, runs AI analysis, manages state
-- **Side Panel UI** (`sidepanel.html`, `sidepanel.js`, `styles.css`): User interface and interactions
-- **Content Script** (`content.js`): Extracts page metadata for enhanced analysis
-
-### AI Integration
-
-TabMind leverages three Chrome built-in AI APIs:
-
-1. **Prompt API**: Analyzes tab relationships and generates intelligent clusters
-2. **Summarizer API**: Creates concise summaries of page content
-3. **Translator API**: (Future) Multi-language support for international users
-
-### Data Flow
-
 \`\`\`
-User Opens Tabs → Background Worker Monitors → AI Analyzes Content → 
-Clusters Generated → Side Panel Updates → User Applies Groups
+TabMind Extension
+├── background.js       # Service worker, AI analysis, state management
+├── sidepanel.html      # User interface
+├── sidepanel.js        # UI logic and interactions
+├── content.js          # Page metadata extraction
+├── styles.css          # Modern dark theme
+└── manifest.json       # Extension configuration
 \`\`\`
 
 ## 🎨 Design Philosophy
 
-TabMind follows a **dark-first, minimal, professional** design language:
-- Clean typography with system fonts
-- Subtle animations and transitions
-- High contrast for accessibility
-- Responsive to different panel widths
+- **Dark-First**: Reduces eye strain during extended use
+- **Minimal Interaction**: Automatic analysis, one-click actions
+- **Progressive Disclosure**: Expandable clusters for detail on demand
+- **Privacy-Preserving**: All AI processing happens on-device
 
 ## 🔧 Development
 
@@ -110,56 +92,57 @@ TabMind follows a **dark-first, minimal, professional** design language:
 
 \`\`\`
 tabmind/
-├── manifest.json          # Extension configuration
-├── background.js          # Service worker
-├── content.js            # Content script
-├── sidepanel.html        # UI markup
-├── sidepanel.js          # UI logic
-├── styles.css            # Styling
-├── icons/                # Extension icons
-└── README.md            # Documentation
+├── icons/              # Extension icons
+├── background.js       # Background service worker
+├── sidepanel.html      # Side panel UI
+├── sidepanel.js        # Side panel logic
+├── content.js          # Content script
+├── styles.css          # Styles
+├── manifest.json       # Extension manifest
+└── README.md          # This file
 \`\`\`
-
-### Building
-
-No build step required! This is a pure JavaScript extension.
 
 ### Testing
 
-1. Make changes to source files
-2. Go to `chrome://extensions/`
-3. Click the refresh icon on the TabMind card
-4. Test your changes
+1. Open 10-20 tabs across different topics
+2. Click the TabMind icon
+3. Verify clusters are generated
+4. Test "Apply Tab Groups" functionality
+5. Test "Revert Tabs" functionality
 
-## 🏆 Chrome Built-in AI Challenge 2025
+### Debugging
 
-TabMind was created for the Google Chrome Built-in AI Challenge 2025. It demonstrates:
+- Check `chrome://extensions/` for errors
+- View console logs in the service worker
+- Inspect side panel with DevTools
 
-- **Functionality**: Scalable AI-powered tab management using multiple Chrome AI APIs
-- **Purpose**: Solves the universal problem of tab overload for knowledge workers
-- **Content**: Clean, professional design with intuitive UX
-- **User Experience**: Zero-friction workflow integration
-- **Technical Execution**: Sophisticated use of Prompt API, Summarizer API, and Chrome extension APIs
+## 🐛 Known Issues
+
+- AI model download requires user interaction on first use
+- Some tabs may not be accessible for content extraction (chrome://, file://)
+- Tab groups are window-specific
+
+## 🚀 Future Enhancements
+
+- Cross-device workspace sync
+- Workspace templates and presets
+- Predictive tab loading
+- Multi-language support
+- Collaborative workspaces
 
 ## 📝 License
 
 MIT License - see LICENSE file for details
 
-## 🤝 Contributing
+## 🏆 Chrome Built-in AI Challenge 2025
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+This extension was built for the Chrome Built-in AI Challenge 2025, showcasing the power of on-device AI for productivity enhancement.
 
 ## 📧 Contact
 
 - GitHub: [@yourusername](https://github.com/yourusername)
 - Email: your.email@example.com
 
-## 🙏 Acknowledgments
-
-- Built with Chrome's built-in AI (Gemini Nano)
-- Inspired by the need for better tab management
-- Created for the Chrome Built-in AI Challenge 2025
-
 ---
 
-**Made with ❤️ for productive browsing**
+Built with ❤️ using Chrome's built-in AI
